@@ -1,0 +1,192 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme {
+  --font-display: "Archivo", "Archivo Expanded", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Archivo", ui-sans-serif, system-ui, sans-serif;
+
+  --color-navy-950: #0a0f2b;
+  --color-navy-900: #111a45;
+  --color-navy-800: #1a2560;
+  --color-navy-700: #26346f;
+  --color-gold-400: #e2b757;
+  --color-gold-200: #f3dca6;
+  --color-gold-900: #5a441a;
+  --color-ink-50: #f6f4ec;
+  --color-ink-300: #c3cae8;
+  --color-ink-500: #7f8bc0;
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: #0a0f2b;
+  --foreground: #f6f4ec;
+  --border: rgba(226, 183, 87, 0.16);
+  --ring: rgba(226, 183, 87, 0.4);
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+    margin: 0;
+    background: var(--background);
+    color: var(--foreground);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* Google serves Archivo's width axis as static "expanded" faces: select them here. */
+.font-display,
+.font-sans,
+body {
+  font-stretch: expanded;
+}
+
+.font-display {
+  letter-spacing: 0.01em;
+}
+
+@utility tnum {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    box-shadow:
+      inset 0 0 0 1px rgba(226, 183, 87, 0.32),
+      0 0 42px -14px rgba(226, 183, 87, 0.55);
+  }
+  50% {
+    box-shadow:
+      inset 0 0 0 1px rgba(226, 183, 87, 0.5),
+      0 0 70px -10px rgba(226, 183, 87, 0.75);
+  }
+}
+
+.breathe {
+  animation: breathe 4s ease-in-out infinite;
+}
+
+/*
+ * Rotating border glow, shown between a prayer's athan and its Kamet.
+ * An SVG rect stroke with a travelling dash: it follows the row's rounded
+ * corners exactly and moves at constant speed along the perimeter, which a
+ * conic gradient cannot do on a 5:1 row (the light whips past the short edges).
+ * pathLength="100" normalises the dash units, so one set of numbers works for
+ * both the portrait and landscape row sizes.
+ */
+@keyframes glow-travel {
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+
+/*
+ * Sized in CSS, not by the width/height attributes: a CSS declaration beats a
+ * presentation attribute, so the SVG viewport is exactly the inset box and the
+ * rect's 100% resolves to it. With the attributes winning, the bottom and right
+ * edges of the ring landed outside the row and were cut by its overflow clip.
+ */
+.glow-track {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: calc(100% - 6px);
+  height: calc(100% - 6px);
+  overflow: visible;
+  pointer-events: none;
+}
+
+.glow-track rect {
+  fill: none;
+  animation: glow-travel 5s linear infinite;
+}
+
+/* Gold arc with a soft bloom. */
+.glow-arc {
+  stroke: #e2b757;
+  stroke-width: 3;
+  stroke-dasharray: 16 84;
+  filter: drop-shadow(0 0 7px rgba(226, 183, 87, 0.85));
+}
+
+/* White-hot core, centred inside the gold arc. */
+.glow-core {
+  stroke: #fffaee;
+  stroke-width: 2;
+  stroke-dasharray: 5 95;
+  stroke-dashoffset: -5.5;
+  animation-name: glow-travel-core;
+}
+
+@keyframes glow-travel-core {
+  to {
+    stroke-dashoffset: -105.5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow-track rect {
+    animation: none;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.rise {
+  animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+/* Bottom gathering reminder — independent of row highlights and glow. */
+.quiet-reminder {
+  flex-shrink: 0;
+  overflow: hidden;
+  border-top: 1px solid rgba(226, 183, 87, 0.55);
+  background: #111a45;
+  color: #f6f4ec;
+  font-family: var(--font-sans);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.45;
+  padding: 8px 0;
+}
+.quiet-reminder-track {
+  display: flex;
+  width: max-content;
+  animation: quiet-reminder-scroll 40s linear infinite;
+  will-change: transform;
+}
+.quiet-reminder-group {
+  flex: none;
+  white-space: nowrap;
+  display: flex;
+}
+.quiet-reminder-group span {
+  padding-right: 100px;
+}
+.quiet-reminder-static { display: none; }
+@keyframes quiet-reminder-scroll {
+  to { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .quiet-reminder-track { display: none; animation: none; }
+  .quiet-reminder-static { display: block; padding: 0 16px; text-align: center; font-size: 26px; line-height: 1.3; }
+}
